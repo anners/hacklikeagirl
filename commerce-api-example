@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'rubygems'
 require 'pp'
+require 'json'
 require 'httparty'
 
 # example Ruby class to use Commerce API 
@@ -18,7 +19,7 @@ class NikeCommerce
 	end
 
 	def get_product_family(id)
-		self.class.get("/commerce/v1/us/en_US/product/#{id}/family.xml?client=#{@client}")
+		self.class.get("/commerce/v1/us/en_US/product/#{id}/family.json?client=#{@client}")
 	end
 
 	def get_product_details(id)
@@ -29,12 +30,20 @@ class NikeCommerce
 		self.class.get("/commerce/v1/us/en_US/product/#{id}/recommendations.json?client=#{@client}")
 	end
 
-	def post(text)
-		"post"
+	def get_multi_products(*ids)
+		self.class.get("/commerce/v1/us/en_US/product/details.json?ids=#{ids.join(",")}&store=false&online=true&includePreLaunch=false&client=#{@client}")
+	end
+
+	def search(query)
+		self.class.get("/commerce/v1/us/en_US/search.json?query=#{query}&client=#{@client}")
 	end
 
 end
 
 commerce = NikeCommerce.new('hacklikeagirl')
-pp commerce.get_product_inventory('828330')
-pp commerce.get_product_recommendations('828330')
+#pp commerce.get_product_inventory('828330')
+#pp commerce.get_product_recommendations('1553922')
+
+tights = commerce.search('tights')
+tights_parsed = JSON.parse(tights.body)
+tights_parsed["results"].each  { |k,v| puts "KEY #{k} VALUE#{v}"}
